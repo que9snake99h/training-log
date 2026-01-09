@@ -14,73 +14,64 @@
       margin: auto;
       padding: 12px;
     }
+    .hidden { display: none; }
 
-    /* 日付ヘッダ */
     .date-header {
       text-align: center;
       font-size: 24px;
       font-weight: bold;
-      margin-bottom: 4px;
     }
-
     .day-type {
       text-align: center;
       font-size: 14px;
       color: #666;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
 
-    /* 体重 */
-    .weight-label {
-      font-size: 12px;
-      color: #666;
-    }
-
+    .weight-label { font-size: 12px; color: #666; }
     .weight-input {
       width: 100%;
       font-size: 20px;
       padding: 4px;
     }
 
-    /* 1行入力 */
     .row {
       display: flex;
       align-items: center;
       gap: 8px;
       margin-top: 16px;
     }
-
-    .row input[type="checkbox"] {
-      transform: scale(1.4);
-    }
-
-    .row select,
-    .row input[type="number"] {
+    .row input[type="checkbox"] { transform: scale(1.4); }
+    .row select, .row input[type="number"] {
       font-size: 18px;
       padding: 4px;
-    }
-
-    .stretch-parts label {
-      font-size: 18px;
-      margin-right: 8px;
     }
 
     button {
       width: 100%;
       font-size: 18px;
       padding: 10px;
-      margin-top: 16px;
+      margin-top: 12px;
     }
 
-    .hidden {
-      display: none;
+    .menu-item {
+      display: flex;
+      justify-content: space-between;
+      font-size: 18px;
+      margin: 8px 0;
+    }
+
+    .tab {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
     }
   </style>
 </head>
 <body>
 
+<!-- ===== 入力画面 ===== -->
 <div id="inputView">
-
   <div class="date-header" id="dateText"></div>
   <div class="day-type" id="dayType"></div>
 
@@ -89,107 +80,131 @@
   <div class="weight-label">体重</div>
   <input type="number" id="weight" class="weight-input" step="0.1" value="63">
 
-  <!-- トレーニング -->
   <div id="training">
     <div class="row">
       <input type="checkbox" id="trainDone">
-      <select id="menu">
-        <option value="">内容</option>
-        <option>腕立て</option>
-        <option>腹筋</option>
-        <option>スクワット</option>
-      </select>
+      <select id="menuSelect"></select>
       <input type="number" id="count" placeholder="回数">
     </div>
   </div>
 
-  <!-- ストレッチ -->
   <div id="stretch" class="hidden">
     <div class="row">
       <input type="checkbox" id="stretchDone">
-      <div class="stretch-parts">
-        <label><input type="checkbox" class="part" value="頭">頭</label>
-        <label><input type="checkbox" class="part" value="首">首</label>
-        <label><input type="checkbox" class="part" value="肩">肩</label>
-        <label><input type="checkbox" class="part" value="背中">背</label>
-        <label><input type="checkbox" class="part" value="腰">腰</label>
-        <label><input type="checkbox" class="part" value="足">足</label>
-      </div>
+      <span>頭 首 肩 背 腰 足</span>
     </div>
   </div>
 
   <button onclick="save()">保存</button>
 </div>
 
-<script>
-  const dateInput = document.getElementById("date");
-  const dateText = document.getElementById("dateText");
-  const dayType = document.getElementById("dayType");
-  const training = document.getElementById("training");
-  const stretch = document.getElementById("stretch");
+<!-- ===== メニュー編集画面 ===== -->
+<div id="menuView" class="hidden">
+  <h2>トレーニングメニュー</h2>
+  <div id="menuList"></div>
 
+  <input type="text" id="newMenu" placeholder="新しいメニュー">
+  <button onclick="addMenu()">追加</button>
+</div>
+
+<!-- ===== タブ ===== -->
+<div class="tab">
+  <button onclick="showInput()">📝</button>
+  <button onclick="showMenu()">⚙️</button>
+</div>
+
+<script>
   const today = new Date().toISOString().slice(0, 10);
-  dateInput.value = today;
+  date.value = today;
 
   function isTrainingDay(d) {
     return new Date(d).getDate() % 2 === 0;
   }
 
+  function getMenus() {
+    const m = localStorage.getItem("trainingMenus");
+    if (m) return JSON.parse(m);
+    const defaults = ["腕立て", "腹筋", "スクワット"];
+    localStorage.setItem("trainingMenus", JSON.stringify(defaults));
+    return defaults;
+  }
+
+  function setMenus(menus) {
+    localStorage.setItem("trainingMenus", JSON.stringify(menus));
+    renderMenuSelect();
+    renderMenuList();
+  }
+
+  function renderMenuSelect() {
+    const menus = getMenus();
+    menuSelect.innerHTML = `<option value="">内容</option>`;
+    menus.forEach(m => {
+      const opt = document.createElement("option");
+      opt.textContent = m;
+      menuSelect.appendChild(opt);
+    });
+  }
+
+  function renderMenuList() {
+    const menus = getMenus();
+    menuList.innerHTML = "";
+    menus.forEach((m, i) => {
+      const div = document.createElement("div");
+      div.className = "menu-item";
+      div.innerHTML = `${m} <span onclick="removeMenu(${i})">×</span>`;
+      menuList.appendChild(div);
+    });
+  }
+
+  function addMenu() {
+    const v = newMenu.value.trim();
+    if (!v) return;
+    const menus = getMenus();
+    menus.push(v);
+    setMenus(menus);
+    newMenu.value = "";
+  }
+
+  function removeMenu(i) {
+    const menus = getMenus();
+    menus.splice(i, 1);
+    setMenus(menus);
+  }
+
   function updateUI() {
-    const d = dateInput.value;
+    const d = date.value;
     dateText.textContent = d;
-
-    const trainingDay = isTrainingDay(d);
-    dayType.textContent = trainingDay ? "トレーニング" : "ストレッチ";
-
-    training.classList.toggle("hidden", !trainingDay);
-    stretch.classList.toggle("hidden", trainingDay);
-
-    load();
+    const t = isTrainingDay(d);
+    dayType.textContent = t ? "トレーニング" : "ストレッチ";
+    training.classList.toggle("hidden", !t);
+    stretch.classList.toggle("hidden", t);
   }
 
   function save() {
-    const d = dateInput.value;
-    const trainingDay = isTrainingDay(d);
-
-    const record = {
-      date: d,
-      weight: weight.value,
-      type: trainingDay ? "training" : "stretch"
-    };
-
-    if (trainingDay) {
-      record.done = trainDone.checked;
-      record.menu = menu.value;
-      record.count = count.value;
-    } else {
-      record.done = stretchDone.checked;
-      record.parts = [...document.querySelectorAll(".part:checked")].map(p => p.value);
+    const d = date.value;
+    const t = isTrainingDay(d);
+    const r = { date: d, weight: weight.value, type: t ? "training" : "stretch" };
+    if (t) {
+      r.done = trainDone.checked;
+      r.menu = menuSelect.value;
+      r.count = count.value;
     }
-
-    localStorage.setItem(d, JSON.stringify(record));
+    localStorage.setItem(d, JSON.stringify(r));
     alert("保存しました");
   }
 
-  function load() {
-    const data = localStorage.getItem(dateInput.value);
-    if (!data) return;
-
-    const r = JSON.parse(data);
-    weight.value = r.weight;
-
-    if (r.type === "training") {
-      trainDone.checked = r.done;
-      menu.value = r.menu;
-      count.value = r.count;
-    } else {
-      stretchDone.checked = r.done;
-      document.querySelectorAll(".part").forEach(p => {
-        p.checked = r.parts?.includes(p.value);
-      });
-    }
+  function showInput() {
+    inputView.classList.remove("hidden");
+    menuView.classList.add("hidden");
   }
 
+  function showMenu() {
+    inputView.classList.add("hidden");
+    menuView.classList.remove("hidden");
+    renderMenuList();
+  }
+
+  renderMenuSelect();
   updateUI();
 
   if ("serviceWorker" in navigator) {
