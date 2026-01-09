@@ -29,3 +29,131 @@
       padding: 12px;
       margin-top: 16px;
     }
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 16px;
+      font-size: 16px;
+    }
+  </style>
+</head>
+<body>
+
+<h2 id="dayType"></h2>
+
+<label>
+  日付
+  <input type="date" id="date">
+</label>
+
+<label>
+  体重（kg）
+  <input type="number" id="weight" step="0.1" value="63">
+</label>
+
+<div id="training" class="card">
+  <h3>🏋 トレーニング</h3>
+  <label><input type="checkbox" id="trainDone"> やった</label>
+
+  <label>
+    メニュー
+    <select id="menu">
+      <option>（未選択）</option>
+      <option>腕立て</option>
+      <option>腹筋</option>
+      <option>スクワット</option>
+    </select>
+  </label>
+
+  <label>
+    回数
+    <input type="number" id="count">
+  </label>
+</div>
+
+<div id="stretch" class="card">
+  <h3>🧘 ストレッチ</h3>
+  <label><input type="checkbox" id="stretchDone"> やった</label>
+
+  <label><input type="checkbox" class="part" value="頭"> 頭</label>
+  <label><input type="checkbox" class="part" value="首"> 首</label>
+  <label><input type="checkbox" class="part" value="肩"> 肩</label>
+  <label><input type="checkbox" class="part" value="背中"> 背中</label>
+  <label><input type="checkbox" class="part" value="腰"> 腰</label>
+  <label><input type="checkbox" class="part" value="足"> 足</label>
+</div>
+
+<button onclick="save()">保存</button>
+
+<script>
+  const dateInput = document.getElementById("date");
+  const weightInput = document.getElementById("weight");
+  const trainingDiv = document.getElementById("training");
+  const stretchDiv = document.getElementById("stretch");
+  const dayTypeLabel = document.getElementById("dayType");
+
+  // 今日をデフォルト
+  const today = new Date().toISOString().slice(0, 10);
+  dateInput.value = today;
+
+  function updateUI() {
+    const date = new Date(dateInput.value);
+    const isTrainingDay = date.getDate() % 2 === 0;
+
+    trainingDiv.style.display = isTrainingDay ? "block" : "none";
+    stretchDiv.style.display = isTrainingDay ? "none" : "block";
+    dayTypeLabel.textContent = isTrainingDay ? "🏋 トレーニングの日" : "🧘 ストレッチの日";
+
+    load();
+  }
+
+  dateInput.addEventListener("change", updateUI);
+
+  function save() {
+    const date = dateInput.value;
+    const isTrainingDay = new Date(date).getDate() % 2 === 0;
+
+    const record = {
+      date,
+      weight: weightInput.value,
+      type: isTrainingDay ? "training" : "stretch"
+    };
+
+    if (isTrainingDay) {
+      record.done = document.getElementById("trainDone").checked;
+      record.menu = document.getElementById("menu").value;
+      record.count = document.getElementById("count").value;
+    } else {
+      record.done = document.getElementById("stretchDone").checked;
+      record.parts = [...document.querySelectorAll(".part:checked")].map(p => p.value);
+    }
+
+    localStorage.setItem(date, JSON.stringify(record));
+    alert("保存しました");
+  }
+
+  function load() {
+    const date = dateInput.value;
+    const data = localStorage.getItem(date);
+    if (!data) return;
+
+    const record = JSON.parse(data);
+    weightInput.value = record.weight;
+
+    if (record.type === "training") {
+      document.getElementById("trainDone").checked = record.done;
+      document.getElementById("menu").value = record.menu;
+      document.getElementById("count").value = record.count;
+    } else {
+      document.getElementById("stretchDone").checked = record.done;
+      document.querySelectorAll(".part").forEach(p => {
+        p.checked = record.parts?.includes(p.value);
+      });
+    }
+  }
+
+  updateUI();
+</script>
+
+</body>
+</html>
