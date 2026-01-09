@@ -2,55 +2,108 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Training Log</title>
-
-  <link rel="stylesheet" href="style.css">
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#34c759">
+  <title>健康ログ</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      max-width: 400px;
+      margin: auto;
+      padding: 16px;
+    }
+    button {
+      padding: 8px 12px;
+      margin: 4px;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
 </head>
 <body>
 
-  <div class="app">
-    <h1>今日の記録</h1>
-    <p class="date"></p>
+<h2>健康ログ</h2>
 
-    <div class="segment">
-      <button class="active">トレ</button>
-      <button>スト</button>
-      <button>休</button>
-    </div>
+<label>
+  日付<br>
+  <input type="date" id="date">
+</label>
 
-    <label>時間</label>
-    <select>
-      <option>10分</option>
-      <option>20分</option>
-      <option selected>30分</option>
-      <option>40分</option>
-    </select>
+<br><br>
 
-    <div class="slider">
-      <label>体調</label>
-      <input type="range" min="1" max="5" value="3">
-    </div>
+<label>
+  体重（kg）<br>
+  <input type="number" id="weight" step="0.1">
+</label>
 
-    <div class="slider">
-      <label>疲労</label>
-      <input type="range" min="1" max="5" value="3">
-    </div>
+<br><br>
 
-    <div class="slider">
-      <label>満足</label>
-      <input type="range" min="1" max="5" value="3">
-    </div>
+<button onclick="showTraining()">🏋 トレーニング</button>
+<button onclick="showStretch()">🧘 ストレッチ</button>
 
-    <textarea placeholder="ひとこと（任意）"></textarea>
-    
-    <a href="history.html" class="back">履歴を見る</a>
+<hr>
 
-    <button class="save">保存</button>
-  </div>
+<div id="training" class="hidden">
+  <h3>トレーニング</h3>
+  <label><input type="radio" name="trainingDone" value="yes"> やった</label>
+  <label><input type="radio" name="trainingDone" value="no"> やらなかった</label>
+  <br><br>
+  回数<br>
+  <input type="number" id="trainingCount">
+</div>
 
-  <script src="app.js"></script>
+<div id="stretch" class="hidden">
+  <h3>ストレッチ</h3>
+  <label><input type="radio" name="stretchDone" value="yes"> した</label>
+  <label><input type="radio" name="stretchDone" value="no"> しなかった</label>
+</div>
+
+<br>
+<button onclick="save()">保存</button>
+
+<script>
+  let mode = "";
+
+  function showTraining() {
+    mode = "training";
+    document.getElementById("training").classList.remove("hidden");
+    document.getElementById("stretch").classList.add("hidden");
+  }
+
+  function showStretch() {
+    mode = "stretch";
+    document.getElementById("stretch").classList.remove("hidden");
+    document.getElementById("training").classList.add("hidden");
+  }
+
+  function save() {
+    const date = dateInput.value;
+    const weight = weightInput.value;
+
+    if (!date || !weight || !mode) {
+      alert("日付・体重・種別を入力してください");
+      return;
+    }
+
+    const record = { date, weight, mode };
+
+    if (mode === "training") {
+      record.done = document.querySelector('input[name="trainingDone"]:checked')?.value;
+      record.count = trainingCount.value;
+    } else {
+      record.done = document.querySelector('input[name="stretchDone"]:checked')?.value;
+    }
+
+    const data = JSON.parse(localStorage.getItem("health") || "[]");
+    data.push(record);
+    localStorage.setItem("health", JSON.stringify(data));
+
+    alert("保存しました");
+  }
+
+  const dateInput = document.getElementById("date");
+  const weightInput = document.getElementById("weight");
+  const trainingCount = document.getElementById("trainingCount");
+</script>
+
 </body>
 </html>
