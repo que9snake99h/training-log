@@ -20,11 +20,11 @@
     header input{font-size:var(--font-lg);background:var(--panel);color:#e5e7eb;border:none;border-radius:10px;padding:6px 10px}
     .menu-btn{font-size:var(--font-md);padding:10px 14px;border-radius:12px;border:none;background:#1e293b;color:#e5e7eb}
 
-    .weight-wrap{display:grid;grid-template-columns:1fr 2fr;gap:8px}
+    .weight-wrap{display:grid;grid-template-columns:1fr 2fr;gap:8px;align-items:center}
     .weight-stats{background:var(--panel);border-radius:var(--radius);padding:8px;font-size:18px;display:flex;flex-direction:column;justify-content:center;gap:6px}
-    .weight-main{background:var(--panel);border-radius:var(--radius);padding:10px;font-size:26px;font-weight:800;text-align:center;display:flex;flex-direction:column;gap:4px;align-items:center}
+    .weight-main{background:var(--panel);border-radius:var(--radius);padding:10px;font-size:26px;font-weight:800;text-align:center;display:flex;align-items:center;gap:6px;justify-content:center}
     .weight-main input{font-size:26px;width:80px;text-align:center}
-    .weight-unit{font-size:19px;margin-left:6px;vertical-align:middle}
+    .weight-unit{font-size:19px}
 
     section{background:var(--panel);border-radius:var(--radius);padding:10px}
     section h2{margin:0 0 6px;font-size:var(--font-md)}
@@ -75,7 +75,9 @@
       </div>
     </div>
     <div class="weight-main">
-      体重 <input type="number" step="0.1" id="weight" value="63" /><span class="weight-unit">kg</span>
+      <span>体重</span>
+      <input type="number" step="0.1" id="weight" value="63" />
+      <span class="weight-unit">kg</span>
     </div>
   </div>
 
@@ -181,7 +183,6 @@ function loadHistory(d){
   const log=JSON.parse(localStorage.getItem('log-'+d));
   if(!log) return;
   weight.value=log.weight;
-  weightUnit.textContent='kg';
   document.querySelectorAll('[data-t]').forEach((c,i)=>c.checked=!!log.train[i]);
   document.querySelectorAll('[data-s]').forEach((c,i)=>c.checked=!!log.stretch[i]);
   updateWeightStats();
