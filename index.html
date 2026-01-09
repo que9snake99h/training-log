@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Training Log</title>
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#34c759">
+</head>
+<body>
+
+  <div class="app">
+    <h1>今日の記録</h1>
+    <p class="date"></p>
+
+    <div class="segment">
+      <button class="active">トレ</button>
+      <button>スト</button>
+      <button>休</button>
+    </div>
+
+    <label>時間</label>
+    <select>
+      <option>10分</option>
+      <option>20分</option>
+      <option selected>30分</option>
+      <option>40分</option>
+    </select>
+
+    <div class="slider">
+      <label>体調</label>
+      <input type="range" min="1" max="5" value="3">
+    </div>
+
+    <div class="slider">
+      <label>疲労</label>
+      <input type="range" min="1" max="5" value="3">
+    </div>
+
+    <div class="slider">
+      <label>満足</label>
+      <input type="range" min="1" max="5" value="3">
+    </div>
+
+    <textarea placeholder="ひとこと（任意）"></textarea>
+    
+    <a href="history.html" class="back">履歴を見る</a>
+
+    <button class="save">保存</button>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
