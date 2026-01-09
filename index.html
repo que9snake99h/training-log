@@ -1,251 +1,120 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>トレーニング記録</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Workout Log</title>
+  <style>
+    :root{
+      --gap: 8px;
+      --radius: 14px;
+      --font-lg: 22px;
+      --font-md: 18px;
+      --font-sm: 15px;
+      --cell-h-stretch: 44px; /* ストレッチは横1行 */
+      --cell-h-train: 56px;   /* トレーニングは8個入るサイズ */
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans JP", sans-serif;
+      background:#0f172a; color:#e5e7eb;
+      height:100vh; overflow:hidden; /* スクロール禁止 */
+    }
+    .app{ display:flex; flex-direction:column; height:100%; padding:10px; gap:10px; }
 
-<style>
-:root {
-  --bg: #f5f5f7;
-  --card: #ffffff;
-  --text-main: #111;
-  --text-sub: #666;
-  --shadow: 0 4px 12px rgba(0,0,0,0.04);
-}
+    /* ヘッダ */
+    header{ display:flex; align-items:center; justify-content:space-between; }
+    .date{
+      font-size:var(--font-lg); font-weight:700;
+    }
+    .date input{ font-size:var(--font-lg); background:#020617; color:#e5e7eb; border:none; border-radius:10px; padding:6px 10px; }
+    .menu-btn{ font-size:var(--font-md); padding:10px 14px; border-radius:12px; border:none; background:#1e293b; color:#e5e7eb; }
 
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  background: var(--bg);
-  color: var(--text-main);
-}
+    /* 体重 */
+    .weight{
+      background:#020617; border-radius:var(--radius); padding:12px;
+      font-size:28px; font-weight:800; text-align:center;
+    }
 
-.container {
-  padding: 20px 16px 28px;
-  max-width: 420px;
-  margin: auto;
-}
+    /* セクション共通 */
+    section{ background:#020617; border-radius:var(--radius); padding:10px; }
+    section h2{ margin:0 0 6px 0; font-size:var(--font-md); font-weight:700; }
 
-/* ヘッダー */
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
+    /* ストレッチ：1行=1部位 */
+    .stretch-list{ display:grid; grid-template-columns:1fr; gap:var(--gap); }
+    .stretch-item{
+      display:flex; align-items:center; justify-content:space-between;
+      height:var(--cell-h-stretch);
+      padding:0 12px; border-radius:12px; background:#111827;
+      font-size:var(--font-sm);
+    }
+    .stretch-item label{ display:flex; align-items:center; gap:10px; }
+    .stretch-item input{ width:22px; height:22px; }
 
-.date {
-  font-size: 18px;
-  font-weight: 600;
-  padding: 10px 12px;
-  height: 44px;
-  border: none;
-  background: var(--card);
-  border-radius: 12px;
-  box-shadow: var(--shadow);
-}
+    /* トレーニング：コンパクトグリッド（最大8） */
+    .train-grid{
+      display:grid; gap:var(--gap);
+      grid-template-columns:repeat(2, 1fr); /* 2列 */
+    }
+    .train-item{
+      height:var(--cell-h-train);
+      border-radius:14px; background:#111827;
+      display:flex; align-items:center; justify-content:space-between;
+      padding:8px 10px;
+      font-size:var(--font-sm);
+    }
+    .train-item label{ display:flex; align-items:center; gap:8px; }
+    .train-item input{ width:22px; height:22px; }
+    .train-item .count{ font-weight:700; opacity:.9; }
 
-.edit-btn {
-  font-size: 15px;
-  padding: 10px 14px;
-  height: 44px;
-  border-radius: 12px;
-  border: none;
-  background: var(--card);
-  box-shadow: var(--shadow);
-}
-
-/* 体重 */
-.weight-label {
-  font-size: 13px;
-  color: var(--text-sub);
-  margin-bottom: 4px;
-}
-
-.weight-input {
-  font-size: 34px;
-  font-weight: 600;
-  height: 60px;
-  width: 100%;
-  padding: 8px 14px;
-  margin-bottom: 22px;
-  border: none;
-  border-radius: 16px;
-  background: var(--card);
-  box-shadow: var(--shadow);
-}
-
-/* 種別 */
-.type {
-  font-size: 18px;
-  font-weight: 600;
-  margin-bottom: 16px;
-}
-
-/* メニュー行 */
-.row {
-  display: flex;
-  align-items: center;
-  font-size: 20px;
-  min-height: 56px;
-  padding: 10px 14px;
-  margin-bottom: 12px;
-  background: var(--card);
-  border-radius: 16px;
-  box-shadow: var(--shadow);
-}
-
-.row input[type="checkbox"] {
-  width: 26px;
-  height: 26px;
-  margin-right: 14px;
-}
-
-.row input[type="number"],
-.row input[type="text"] {
-  font-size: 20px;
-  width: 72px;
-  height: 44px;
-  margin-left: auto;
-  border: none;
-  background: #f0f0f0;
-  border-radius: 10px;
-  text-align: center;
-}
-
-/* フッター */
-.footer {
-  display: flex;
-  gap: 14px;
-  margin-top: 24px;
-}
-
-.footer button {
-  flex: 1;
-  font-size: 18px;
-  height: 56px;
-  border-radius: 16px;
-  border: none;
-  background: var(--card);
-  box-shadow: var(--shadow);
-  font-weight: 600;
-}
-</style>
+    /* フッタ */
+    footer{ margin-top:auto; display:flex; gap:10px; }
+    .btn{
+      flex:1; height:52px; border-radius:16px; border:none;
+      font-size:var(--font-md); font-weight:700;
+    }
+    .save{ background:#22c55e; color:#052e16; }
+    .history{ background:#1e293b; color:#e5e7eb; }
+  </style>
 </head>
-
 <body>
-<div class="container">
+  <div class="app">
+    <header>
+      <div class="date">
+        <input type="date" />
+      </div>
+      <button class="menu-btn">メニュー編集</button>
+    </header>
 
-  <div class="header">
-    <input type="date" id="date" class="date">
-    <button class="edit-btn" onclick="toggleEdit()">編集</button>
+    <div class="weight">体重 63.5 kg</div>
+
+    <section>
+      <h2>ストレッチ</h2>
+      <div class="stretch-list">
+        <div class="stretch-item"><label><input type="checkbox" /> 首</label></div>
+        <div class="stretch-item"><label><input type="checkbox" /> 肩</label></div>
+        <div class="stretch-item"><label><input type="checkbox" /> 腰</label></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>トレーニング</h2>
+      <div class="train-grid">
+        <div class="train-item"><label><input type="checkbox" /> 腕立て</label><span class="count">20</span></div>
+        <div class="train-item"><label><input type="checkbox" /> スクワット</label><span class="count">20</span></div>
+        <div class="train-item"><label><input type="checkbox" /> 腹筋</label><span class="count">30</span></div>
+        <div class="train-item"><label><input type="checkbox" /> プランク</label><span class="count">60s</span></div>
+        <div class="train-item"><label><input type="checkbox" /> ランジ</label><span class="count">20</span></div>
+        <div class="train-item"><label><input type="checkbox" /> 懸垂</label><span class="count">10</span></div>
+        <div class="train-item"><label><input type="checkbox" /> バーピー</label><span class="count">10</span></div>
+        <div class="train-item"><label><input type="checkbox" /> ヒップ</label><span class="count">20</span></div>
+      </div>
+    </section>
+
+    <footer>
+      <button class="btn save">保存</button>
+      <button class="btn history">履歴</button>
+    </footer>
   </div>
-
-  <div class="weight-label">体重</div>
-  <input type="number" id="weight" class="weight-input" step="0.1">
-
-  <div id="type" class="type"></div>
-  <div id="content"></div>
-
-  <div class="footer">
-    <button onclick="save()">保存する</button>
-    <button onclick="alert('履歴は次に作ります')">履歴を見る</button>
-  </div>
-
-</div>
-
-<script>
-let editMode = false;
-
-const dateInput = document.getElementById("date");
-const weightInput = document.getElementById("weight");
-const typeEl = document.getElementById("type");
-const contentEl = document.getElementById("content");
-
-const today = new Date().toISOString().split("T")[0];
-dateInput.value = today;
-weightInput.value = 63.0;
-
-function getMenus(key, def) {
-  return JSON.parse(localStorage.getItem(key)) || def;
-}
-
-function saveMenus(key, data) {
-  localStorage.setItem(key, JSON.stringify(data));
-}
-
-function isTrainingDay(dateStr) {
-  return new Date(dateStr).getDate() % 2 === 1;
-}
-
-function toggleEdit() {
-  editMode = !editMode;
-  render();
-}
-
-function render() {
-  contentEl.innerHTML = "";
-  const training = isTrainingDay(dateInput.value);
-  typeEl.textContent = training ? "今日：トレーニング" : "今日：ストレッチ";
-
-  if (training) {
-    let menus = getMenus("menus_training", [
-      { name: "腕立て", reps: 20 },
-      { name: "スクワット", reps: 30 }
-    ]);
-
-    menus.forEach((m, i) => {
-      const row = document.createElement("div");
-      row.className = "row";
-      row.innerHTML = editMode
-        ? `<input type="text" value="${m.name}">
-           <input type="number" value="${m.reps}">
-           <button onclick="removeTraining(${i})">×</button>`
-        : `<input type="checkbox">
-           ${m.name}
-           <input type="number" value="${m.reps}">`;
-      contentEl.appendChild(row);
-    });
-
-    saveMenus("menus_training", menus);
-  } else {
-    let menus = getMenus("menus_stretch", ["頭", "首", "肩", "背中", "腰", "足"]);
-
-    menus.forEach((m, i) => {
-      const row = document.createElement("div");
-      row.className = "row";
-      row.innerHTML = editMode
-        ? `<input type="text" value="${m}">
-           <button onclick="removeStretch(${i})">×</button>`
-        : `<input type="checkbox">${m}`;
-      contentEl.appendChild(row);
-    });
-
-    saveMenus("menus_stretch", menus);
-  }
-}
-
-function removeTraining(i) {
-  const menus = getMenus("menus_training", []);
-  menus.splice(i, 1);
-  saveMenus("menus_training", menus);
-  render();
-}
-
-function removeStretch(i) {
-  const menus = getMenus("menus_stretch", []);
-  menus.splice(i, 1);
-  saveMenus("menus_stretch", menus);
-  render();
-}
-
-function save() {
-  alert("保存しました（記録保存は次段階）");
-}
-
-dateInput.addEventListener("change", render);
-render();
-</script>
 </body>
 </html>
