@@ -9,14 +9,14 @@
       font-family: sans-serif;
       max-width: 420px;
       margin: auto;
-      padding: 16px;
+      padding: 12px;
     }
     h2 {
       margin-bottom: 8px;
     }
     label {
       display: block;
-      margin-top: 12px;
+      margin-top: 10px;
     }
     input, select {
       width: 100%;
@@ -27,63 +27,86 @@
       border: 1px solid #ccc;
       border-radius: 8px;
       padding: 12px;
-      margin-top: 16px;
+      margin-top: 12px;
     }
     button {
       width: 100%;
       padding: 10px;
-      margin-top: 16px;
+      margin-top: 12px;
       font-size: 16px;
+    }
+    .hidden {
+      display: none;
+    }
+    .tab {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
     }
   </style>
 </head>
 <body>
 
-<h2 id="dayType"></h2>
-
-<label>
-  日付
-  <input type="date" id="date">
-</label>
-
-<label>
-  体重（kg）
-  <input type="number" id="weight" step="0.1" value="63">
-</label>
-
-<div id="training" class="card">
-  <h3>🏋 トレーニング</h3>
-  <label><input type="checkbox" id="trainDone"> やった</label>
+<!-- ===== 入力画面 ===== -->
+<div id="inputView">
+  <h2 id="dayType"></h2>
 
   <label>
-    メニュー
-    <select id="menu">
-      <option>（未選択）</option>
-      <option>腕立て</option>
-      <option>腹筋</option>
-      <option>スクワット</option>
-    </select>
+    日付
+    <input type="date" id="date">
   </label>
 
   <label>
-    回数
-    <input type="number" id="count">
+    体重（kg）
+    <input type="number" id="weight" step="0.1" value="63">
   </label>
+
+  <div id="training" class="card">
+    <h3>🏋 トレーニング</h3>
+    <label><input type="checkbox" id="trainDone"> やった</label>
+
+    <label>
+      メニュー
+      <select id="menu">
+        <option>（未選択）</option>
+        <option>腕立て</option>
+        <option>腹筋</option>
+        <option>スクワット</option>
+      </select>
+    </label>
+
+    <label>
+      回数
+      <input type="number" id="count">
+    </label>
+  </div>
+
+  <div id="stretch" class="card">
+    <h3>🧘 ストレッチ</h3>
+    <label><input type="checkbox" id="stretchDone"> やった</label>
+
+    <label><input type="checkbox" class="part" value="頭"> 頭</label>
+    <label><input type="checkbox" class="part" value="首"> 首</label>
+    <label><input type="checkbox" class="part" value="肩"> 肩</label>
+    <label><input type="checkbox" class="part" value="背中"> 背中</label>
+    <label><input type="checkbox" class="part" value="腰"> 腰</label>
+    <label><input type="checkbox" class="part" value="足"> 足</label>
+  </div>
+
+  <button onclick="save()">保存</button>
 </div>
 
-<div id="stretch" class="card">
-  <h3>🧘 ストレッチ</h3>
-  <label><input type="checkbox" id="stretchDone"> やった</label>
-
-  <label><input type="checkbox" class="part" value="頭"> 頭</label>
-  <label><input type="checkbox" class="part" value="首"> 首</label>
-  <label><input type="checkbox" class="part" value="肩"> 肩</label>
-  <label><input type="checkbox" class="part" value="背中"> 背中</label>
-  <label><input type="checkbox" class="part" value="腰"> 腰</label>
-  <label><input type="checkbox" class="part" value="足"> 足</label>
+<!-- ===== 履歴画面 ===== -->
+<div id="historyView" class="hidden">
+  <h2>📅 履歴</h2>
+  <div id="historyList"></div>
 </div>
 
-<button onclick="save()">保存</button>
+<!-- ===== タブ ===== -->
+<div class="tab">
+  <button onclick="showInput()">📝 入力</button>
+  <button onclick="showHistory()">📅 履歴</button>
+</div>
 
 <script>
   const dateInput = document.getElementById("date");
@@ -92,17 +115,25 @@
   const stretchDiv = document.getElementById("stretch");
   const dayTypeLabel = document.getElementById("dayType");
 
+  const inputView = document.getElementById("inputView");
+  const historyView = document.getElementById("historyView");
+  const historyList = document.getElementById("historyList");
+
   // 今日をデフォルト
   const today = new Date().toISOString().slice(0, 10);
   dateInput.value = today;
 
-  function updateUI() {
-    const date = new Date(dateInput.value);
-    const isTrainingDay = date.getDate() % 2 === 0;
+  function isTrainingDay(dateStr) {
+    return new Date(dateStr).getDate() % 2 === 0;
+  }
 
-    trainingDiv.style.display = isTrainingDay ? "block" : "none";
-    stretchDiv.style.display = isTrainingDay ? "none" : "block";
-    dayTypeLabel.textContent = isTrainingDay ? "🏋 トレーニングの日" : "🧘 ストレッチの日";
+  function updateUI() {
+    const date = dateInput.value;
+    const trainingDay = isTrainingDay(date);
+
+    trainingDiv.style.display = trainingDay ? "block" : "none";
+    stretchDiv.style.display = trainingDay ? "none" : "block";
+    dayTypeLabel.textContent = trainingDay ? "🏋 トレーニングの日" : "🧘 ストレッチの日";
 
     load();
   }
@@ -111,20 +142,20 @@
 
   function save() {
     const date = dateInput.value;
-    const isTrainingDay = new Date(date).getDate() % 2 === 0;
+    const trainingDay = isTrainingDay(date);
 
     const record = {
       date,
       weight: weightInput.value,
-      type: isTrainingDay ? "training" : "stretch"
+      type: trainingDay ? "training" : "stretch"
     };
 
-    if (isTrainingDay) {
-      record.done = document.getElementById("trainDone").checked;
-      record.menu = document.getElementById("menu").value;
-      record.count = document.getElementById("count").value;
+    if (trainingDay) {
+      record.done = trainDone.checked;
+      record.menu = menu.value;
+      record.count = count.value;
     } else {
-      record.done = document.getElementById("stretchDone").checked;
+      record.done = stretchDone.checked;
       record.parts = [...document.querySelectorAll(".part:checked")].map(p => p.value);
     }
 
@@ -133,23 +164,58 @@
   }
 
   function load() {
-    const date = dateInput.value;
-    const data = localStorage.getItem(date);
+    const data = localStorage.getItem(dateInput.value);
     if (!data) return;
 
-    const record = JSON.parse(data);
-    weightInput.value = record.weight;
+    const r = JSON.parse(data);
+    weightInput.value = r.weight;
 
-    if (record.type === "training") {
-      document.getElementById("trainDone").checked = record.done;
-      document.getElementById("menu").value = record.menu;
-      document.getElementById("count").value = record.count;
+    if (r.type === "training") {
+      trainDone.checked = r.done;
+      menu.value = r.menu;
+      count.value = r.count;
     } else {
-      document.getElementById("stretchDone").checked = record.done;
+      stretchDone.checked = r.done;
       document.querySelectorAll(".part").forEach(p => {
-        p.checked = record.parts?.includes(p.value);
+        p.checked = r.parts?.includes(p.value);
       });
     }
+  }
+
+  function showHistory() {
+    inputView.classList.add("hidden");
+    historyView.classList.remove("hidden");
+    renderHistory();
+  }
+
+  function showInput() {
+    historyView.classList.add("hidden");
+    inputView.classList.remove("hidden");
+  }
+
+  function renderHistory() {
+    historyList.innerHTML = "";
+
+    Object.keys(localStorage)
+      .sort()
+      .reverse()
+      .forEach(key => {
+        const r = JSON.parse(localStorage.getItem(key));
+        const div = document.createElement("div");
+        div.className = "card";
+        div.innerHTML = `
+          <strong>${r.date}</strong><br>
+          ${r.type === "training" ? "🏋 トレ" : "🧘 ストレ"} /
+          体重 ${r.weight}kg<br>
+          ${r.done ? "実施" : "未実施"}
+        `;
+        div.onclick = () => {
+          showInput();
+          dateInput.value = r.date;
+          updateUI();
+        };
+        historyList.appendChild(div);
+      });
   }
 
   updateUI();
