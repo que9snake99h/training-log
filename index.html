@@ -20,25 +20,26 @@
     header input{font-size:var(--font-lg);background:var(--panel);color:#e5e7eb;border:none;border-radius:10px;padding:6px 10px}
     .menu-btn{font-size:var(--font-md);padding:10px 14px;border-radius:12px;border:none;background:#1e293b;color:#e5e7eb}
 
-    .weight-wrap{display:grid;grid-template-columns:1fr 2fr;gap:8px;align-items:center}
-    .weight-stats{background:var(--panel);border-radius:var(--radius);padding:8px;font-size:18px;display:flex;flex-direction:column;justify-content:center;gap:6px}
-    .weight-main{background:var(--panel);border-radius:var(--radius);padding:10px;font-size:26px;font-weight:800;text-align:center;display:flex;align-items:center;gap:6px;justify-content:center}
-    .weight-main input{font-size:26px;width:80px;text-align:center}
-    .weight-unit{font-size:19px}
+    .weight-wrap{display:grid;grid-template-columns:2fr 3fr;gap:8px;align-items:center}
+    .weight-stats{background:var(--panel);border-radius:var(--radius);padding:10px;font-size:22px;display:flex;flex-direction:column;justify-content:center;gap:10px}
+    .weight-stats .action-buttons{margin-top:10px}
+    .weight-main{background:var(--panel);border-radius:var(--radius);padding:6px;font-size:18px;font-weight:800;text-align:center;display:flex;align-items:center;gap:4px;justify-content:center}
+    .weight-main input{font-size:18px;width:60px;text-align:center}
+    .weight-unit{font-size:18px}
 
     section{background:var(--panel);border-radius:var(--radius);padding:10px}
     section h2{margin:0 0 6px;font-size:var(--font-md)}
 
     .grid2{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--gap)}
-    .item{height:var(--cell-h);background:var(--cell);border-radius:12px;display:flex;align-items:center;padding:0 10px;font-size:var(--font-sm)}
+    .item{height:28px;background:var(--cell);border-radius:12px;display:flex;align-items:center;padding:0 10px;font-size:var(--font-sm)}
     .item label{display:flex;align-items:center;gap:8px}
     .item input[type=checkbox]{width:20px;height:20px}
     .count{margin-left:auto;font-weight:700}
 
-    .train .item{height:var(--cell-h-train)}
+    .train .item{height:40px}
 
-    .action-buttons{display:flex;gap:12px;margin-top:6px}
-    .action-buttons button{flex:1;height:50px;font-size:var(--font-md);font-weight:700;border-radius:14px;border:none}
+    .action-buttons{display:flex;gap:12px}
+    .action-buttons button{flex:1;height:40px;font-size:var(--font-md);font-weight:700;border-radius:14px;border:none}
     .save{background:var(--accent);color:#052e16}
     .history{background:#1e293b;color:#e5e7eb}
 
@@ -75,8 +76,7 @@
       </div>
     </div>
     <div class="weight-main">
-      <span>体重</span>
-      <input type="number" step="0.1" id="weight" value="63" />
+      <input type="number" step="0.1" id="weight" value="63" inputmode="decimal" pattern="[0-9]+([\\.][0-9]+)?" />
       <span class="weight-unit">kg</span>
     </div>
   </div>
