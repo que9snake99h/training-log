@@ -5,7 +5,7 @@
   <title>健康ログ</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="manifest" href="manifest.json">
-　<meta name="theme-color" content="#ffffff">
+  <meta name="theme-color" content="#ffffff">
 
   <style>
     body {
@@ -14,143 +14,147 @@
       margin: auto;
       padding: 12px;
     }
-    h2 {
-      margin-bottom: 8px;
+
+    /* 日付ヘッダ */
+    .date-header {
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      margin-bottom: 4px;
     }
-    label {
-      display: block;
-      margin-top: 10px;
+
+    .day-type {
+      text-align: center;
+      font-size: 14px;
+      color: #666;
+      margin-bottom: 12px;
     }
-    input, select {
+
+    /* 体重 */
+    .weight-label {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .weight-input {
       width: 100%;
-      padding: 6px;
-      margin-top: 4px;
+      font-size: 20px;
+      padding: 4px;
     }
-    .card {
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      padding: 12px;
-      margin-top: 12px;
+
+    /* 1行入力 */
+    .row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 16px;
     }
+
+    .row input[type="checkbox"] {
+      transform: scale(1.4);
+    }
+
+    .row select,
+    .row input[type="number"] {
+      font-size: 18px;
+      padding: 4px;
+    }
+
+    .stretch-parts label {
+      font-size: 18px;
+      margin-right: 8px;
+    }
+
     button {
       width: 100%;
+      font-size: 18px;
       padding: 10px;
-      margin-top: 12px;
-      font-size: 16px;
+      margin-top: 16px;
     }
+
     .hidden {
       display: none;
     }
-    .tab {
-      display: flex;
-      gap: 8px;
-      margin-top: 12px;
-    }
-
   </style>
 </head>
 <body>
 
-<!-- ===== 入力画面 ===== -->
 <div id="inputView">
-  <h2 id="dayType"></h2>
 
-  <label>
-    日付
-    <input type="date" id="date">
-  </label>
+  <div class="date-header" id="dateText"></div>
+  <div class="day-type" id="dayType"></div>
 
-  <label>
-    体重（kg）
-    <input type="number" id="weight" step="0.1" value="63">
-  </label>
+  <input type="date" id="date" hidden>
 
-  <div id="training" class="card">
-    <h3>🏋 トレーニング</h3>
-    <label><input type="checkbox" id="trainDone"> やった</label>
+  <div class="weight-label">体重</div>
+  <input type="number" id="weight" class="weight-input" step="0.1" value="63">
 
-    <label>
-      メニュー
+  <!-- トレーニング -->
+  <div id="training">
+    <div class="row">
+      <input type="checkbox" id="trainDone">
       <select id="menu">
-        <option>（未選択）</option>
+        <option value="">内容</option>
         <option>腕立て</option>
         <option>腹筋</option>
         <option>スクワット</option>
       </select>
-    </label>
-
-    <label>
-      回数
-      <input type="number" id="count">
-    </label>
+      <input type="number" id="count" placeholder="回数">
+    </div>
   </div>
 
-  <div id="stretch" class="card">
-    <h3>🧘 ストレッチ</h3>
-    <label><input type="checkbox" id="stretchDone"> やった</label>
-
-    <label><input type="checkbox" class="part" value="頭"> 頭</label>
-    <label><input type="checkbox" class="part" value="首"> 首</label>
-    <label><input type="checkbox" class="part" value="肩"> 肩</label>
-    <label><input type="checkbox" class="part" value="背中"> 背中</label>
-    <label><input type="checkbox" class="part" value="腰"> 腰</label>
-    <label><input type="checkbox" class="part" value="足"> 足</label>
+  <!-- ストレッチ -->
+  <div id="stretch" class="hidden">
+    <div class="row">
+      <input type="checkbox" id="stretchDone">
+      <div class="stretch-parts">
+        <label><input type="checkbox" class="part" value="頭">頭</label>
+        <label><input type="checkbox" class="part" value="首">首</label>
+        <label><input type="checkbox" class="part" value="肩">肩</label>
+        <label><input type="checkbox" class="part" value="背中">背</label>
+        <label><input type="checkbox" class="part" value="腰">腰</label>
+        <label><input type="checkbox" class="part" value="足">足</label>
+      </div>
+    </div>
   </div>
 
   <button onclick="save()">保存</button>
 </div>
 
-<!-- ===== 履歴画面 ===== -->
-<div id="historyView" class="hidden">
-  <h2>📅 履歴</h2>
-  <div id="historyList"></div>
-</div>
-
-<!-- ===== タブ ===== -->
-<div class="tab">
-  <button onclick="showInput()">📝 入力</button>
-  <button onclick="showHistory()">📅 履歴</button>
-</div>
-
 <script>
   const dateInput = document.getElementById("date");
-  const weightInput = document.getElementById("weight");
-  const trainingDiv = document.getElementById("training");
-  const stretchDiv = document.getElementById("stretch");
-  const dayTypeLabel = document.getElementById("dayType");
+  const dateText = document.getElementById("dateText");
+  const dayType = document.getElementById("dayType");
+  const training = document.getElementById("training");
+  const stretch = document.getElementById("stretch");
 
-  const inputView = document.getElementById("inputView");
-  const historyView = document.getElementById("historyView");
-  const historyList = document.getElementById("historyList");
-
-  // 今日をデフォルト
   const today = new Date().toISOString().slice(0, 10);
   dateInput.value = today;
 
-  function isTrainingDay(dateStr) {
-    return new Date(dateStr).getDate() % 2 === 0;
+  function isTrainingDay(d) {
+    return new Date(d).getDate() % 2 === 0;
   }
 
   function updateUI() {
-    const date = dateInput.value;
-    const trainingDay = isTrainingDay(date);
+    const d = dateInput.value;
+    dateText.textContent = d;
 
-    trainingDiv.style.display = trainingDay ? "block" : "none";
-    stretchDiv.style.display = trainingDay ? "none" : "block";
-    dayTypeLabel.textContent = trainingDay ? "🏋 トレーニングの日" : "🧘 ストレッチの日";
+    const trainingDay = isTrainingDay(d);
+    dayType.textContent = trainingDay ? "トレーニング" : "ストレッチ";
+
+    training.classList.toggle("hidden", !trainingDay);
+    stretch.classList.toggle("hidden", trainingDay);
 
     load();
   }
 
-  dateInput.addEventListener("change", updateUI);
-
   function save() {
-    const date = dateInput.value;
-    const trainingDay = isTrainingDay(date);
+    const d = dateInput.value;
+    const trainingDay = isTrainingDay(d);
 
     const record = {
-      date,
-      weight: weightInput.value,
+      date: d,
+      weight: weight.value,
       type: trainingDay ? "training" : "stretch"
     };
 
@@ -163,7 +167,7 @@
       record.parts = [...document.querySelectorAll(".part:checked")].map(p => p.value);
     }
 
-    localStorage.setItem(date, JSON.stringify(record));
+    localStorage.setItem(d, JSON.stringify(record));
     alert("保存しました");
   }
 
@@ -172,7 +176,7 @@
     if (!data) return;
 
     const r = JSON.parse(data);
-    weightInput.value = r.weight;
+    weight.value = r.weight;
 
     if (r.type === "training") {
       trainDone.checked = r.done;
@@ -186,49 +190,12 @@
     }
   }
 
-  function showHistory() {
-    inputView.classList.add("hidden");
-    historyView.classList.remove("hidden");
-    renderHistory();
-  }
-
-  function showInput() {
-    historyView.classList.add("hidden");
-    inputView.classList.remove("hidden");
-  }
-
-  function renderHistory() {
-    historyList.innerHTML = "";
-
-    Object.keys(localStorage)
-      .sort()
-      .reverse()
-      .forEach(key => {
-        const r = JSON.parse(localStorage.getItem(key));
-        const div = document.createElement("div");
-        div.className = "card";
-        div.innerHTML = `
-          <strong>${r.date}</strong><br>
-          ${r.type === "training" ? "🏋 トレ" : "🧘 ストレ"} /
-          体重 ${r.weight}kg<br>
-          ${r.done ? "実施" : "未実施"}
-        `;
-        div.onclick = () => {
-          showInput();
-          dateInput.value = r.date;
-          updateUI();
-        };
-        historyList.appendChild(div);
-      });
-  }
-
   updateUI();
-</script>
-<script>
+
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("service-worker.js");
   }
 </script>
+
 </body>
 </html>
-
