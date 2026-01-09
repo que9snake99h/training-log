@@ -8,7 +8,7 @@
     :root{
       --gap:8px; --radius:14px;
       --font-lg:22px; --font-md:18px; --font-sm:15px; --font-xs:14px;
-      --cell-h:40px; --cell-h-train:55px;
+      --cell-h:35px; --cell-h-train:50px;
       --bg:#0f172a; --panel:#020617; --cell:#111827;
       --accent:#22c55e;
     }
@@ -22,8 +22,9 @@
 
     .weight-wrap{display:grid;grid-template-columns:1fr 2fr;gap:8px}
     .weight-stats{background:var(--panel);border-radius:var(--radius);padding:8px;font-size:18px;display:flex;flex-direction:column;justify-content:center;gap:6px}
-    .weight-main{background:var(--panel);border-radius:var(--radius);padding:10px;font-size:26px;font-weight:800;text-align:center;display:flex;flex-direction:column;gap:4px}
+    .weight-main{background:var(--panel);border-radius:var(--radius);padding:10px;font-size:26px;font-weight:800;text-align:center;display:flex;flex-direction:column;gap:4px;align-items:center}
     .weight-main input{font-size:26px;width:80px;text-align:center}
+    .weight-unit{font-size:19px;margin-left:6px;vertical-align:middle}
 
     section{background:var(--panel);border-radius:var(--radius);padding:10px}
     section h2{margin:0 0 6px;font-size:var(--font-md)}
@@ -68,24 +69,24 @@
     <div class="weight-stats">
       <div>前日: <span id="yWeight">-</span> kg</div>
       <div>7日平均: <span id="avgWeight">-</span> kg</div>
-    </div>
-    <div class="weight-main">
-      体重 <input type="number" step="0.1" id="weight" value="63" /> kg <span id="weightUnit">kg</span>
       <div class="action-buttons">
         <button class="save" onclick="save()">保存</button>
         <button class="history" onclick="showHistory()">履歴</button>
       </div>
     </div>
+    <div class="weight-main">
+      体重 <input type="number" step="0.1" id="weight" value="63" /><span class="weight-unit">kg</span>
+    </div>
   </div>
-
-  <section>
-    <h2>ストレッチ</h2>
-    <div class="grid2" id="stretchList"></div>
-  </section>
 
   <section class="train">
     <h2>トレーニング</h2>
     <div class="grid2" id="trainList"></div>
+  </section>
+
+  <section>
+    <h2>ストレッチ</h2>
+    <div class="grid2" id="stretchList"></div>
   </section>
 </div>
 
